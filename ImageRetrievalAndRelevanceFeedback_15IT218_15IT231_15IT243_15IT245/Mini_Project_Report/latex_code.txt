@@ -1,0 +1,277 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{tikz}
+\usepackage{subfig}
+% \usepackage[demo]{graphicx}
+\usetikzlibrary{calc}
+\begin{document}
+\begin{titlepage}
+    \begin{tikzpicture}[remember picture, overlay]
+      \draw[line width = 1pt] ($(current page.north west) + (2em,-2em)$) rectangle ($(current page.south east) + (-2em,2em)$);
+    \end{tikzpicture}
+
+    \centering
+    \vspace{-3em}
+        \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=0.5\linewidth]{nitk-logo.png}
+    \end{figure}
+    {\large \bfseries Department of Information Technology}\\
+    {\large \bfseries National Institute of Technology Karnataka, Surathkal.}\\
+    {\large \bfseries May 2018}\\
+    \vspace{2em}
+    {\Large\textit{Project Report}}\\
+    \vspace{1em}
+    On\\
+    \vspace{1.5em}
+    {\LARGE \textbf{Automatic Medical Image Annotation and Content-based Image Retrieval using Relevance Feedback}}\\
+    \vspace{2em}
+    {\Large\textit{Submitted by}}\\
+    \vspace{1em}
+    {\large \emph{\textbf{Manali Ashish Shah (15IT218) }}}\\
+    {\large \emph{\textbf{Ria Kulshrestha (15IT231) }}}\\
+    {\large \emph{\textbf{Shivani Shrivastava (15IT243)}}}\\
+    {\large \emph{\textbf{Sneha Suresh Patil (15IT245)}}}\\
+    \vspace{1em}
+    {\large \textbf{VI Sem B.Tech}}\\
+    \vspace{1em}
+    {\large Under the Guidance of}\\
+    \vspace{1em}
+    {\Large \textbf{Dr. Sowmya Kamath S}}\\
+    \vspace{0.5em}
+    {\large \textbf{Dept. of Information Technology,}}\\
+    {\large \textbf{NITK, Surathkal}}\\
+
+\end{titlepage}
+
+
+
+
+\newpage
+\pagenumbering{roman}
+\section*{\centering{Abstract}}
+\addcontentsline{toc}{section}{Abstract}
+
+This project implements classification of medical images, content-based medical image retrieval,and relevance feedback method for image retrieval for enhancing image classification and hence retrieval performance. For image classification our system uses Convolutional Neural Network(CNN). For content-based image retrieval, our retrieval system uses the results from the softmax classifier used in our CNN architecture.To enhance the performance further we combine our image retrieval system with relevance feedback mechanism in CNN. 
+
+
+
+
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+
+\newpage
+% \listoffigures
+% \newpage
+\pagenumbering{arabic}
+% \section*{\centering{List of Figures}}
+% \addcontentsline{toc}{section}{List of Figures}
+% Figure 1: Convolutional Neural Network         \hspace{80mm}                4\\
+% Figure 2: The U-Net Architecture             \hspace{90mm}                   8
+% Figure 3: The Ultrasound Image            \hspace{90mm}                    13
+% Figure 4: The Predicted Mask            \hspace{100mm}                 
+%      13
+
+\newpage
+
+
+\section{Introduction}
+Image annotation is the task of attaching meta-data in form of caption or keywords to any image. The need for automatic annotation of medical images is ever-growing. Medical images like CT scans, MRIs, X-ray scans play a crucial role in modern medicine. They aid in early detection, diagnosis and treatment.
+\\ \\
+Content based Image Retrieval is the content(features) based search for similar images in a large database. Keyword based image retrieval when done, requires manual annotation which has many practical limitations due to the ever-growing size of the database. Also, the accuracy of keyword based retrieval system will be dependent on the precision of the annotation done manually, hence prone to more error.The content based image retrieval techniques addresses both these problems.
+\\ \\
+Content based image retrieval can be achieved using a CNN based model. CNN or ConvNet is a sub-class of Deep neural networks. They are complex feed-forward neural networks.  
+They do not require feature extraction as they learn the features on their own while training. Also they have high accuracy and hence used very commonly for these problems(classification and recognition).
+A CNN model in conjunction with massive amount of data automates the annotation process as well as boosts the classification performance.
+\\ \\
+ImageClef 2009 dataset acts a benchmark for medical annotation.The image sets(train and test) are based on the IRMA project.The images of the dataset are fully classified radio graphs. It consists of 20,000 training images and 10,000 testing images categorized into 193 classes. The class label of the images are complete IRMA codes.
+\newpage
+\section{Literature Review}
+\subsection{Background}
+\vspace{1em}
+\emph{Outcomes of Literature Review}\\ \\
+\cite{cbirk} employs the method of k-nearest neighbors to retrieve information.The retrieval considers the euclidean distance for fetching the information.It considers all the documents are relevant. 
+\\ \\
+\cite{cbir} proposes the method of using the decision trees for retrieval that considers relevance feedback.The edges linking the nodes of the decision trees are given weights that are trained as per the feedback from the user.The features that are found in relevant images are given more weights than the ones not found.   
+\\ \\
+\cite{xray-paper} uses the technique of center symmetric linear binary patterns to extract texture feature from the images. The method suits well for X-Ray images since it has contrasting bright foreground over dark background region.
+\subsection{Identified Gaps}
+The technique for k-nearest neighbors doesn't consider the relevance or non-relevance of the document.It assumes that all the documents are relevant. 
+\\ \\
+The pruning of the decision tree will affect the ratio of relevance and non-relevance in the dataset and hence will affect performance of the model.The merging of the nodes will also affect the ratio and hence the results.
+\\ \\
+An image region is said to be flat if it has a nearly uniform intensity that is the variance of the intensity values within the region is very low. The LBP feature is not robust on flat image areas since it is based on intensity differences. It also ignores the actual intensity level at the location it is computed on.
+\vspace{1em}
+\subsection{Problem Statement}
+Content-based medical image retrieval and relevance feedback method for image retrieval for enhancing image retrieval performance. 
+
+\subsection{Objectives}
+\begin{itemize}
+    \item Performing image classification based on content of the images.
+    \item Building an image retrieval system.
+    \item Provide mechanism for relevance feedback.
+    \item Improving classification performance based on the relevance feedback.
+\end{itemize}
+
+
+
+\newpage
+\section{Methodology and Framework}
+\subsection{Network Architecture}
+
+Our multi-layered Convolutional Neural Network (CNN) has 5 convolutional layers which are followed by 4 fully connected layers. Each convolutional layer is followed by a ReLu activation layer which is in turn followed by a max pooling layer. The dimensions of each layer is as follows:
+\begin{itemize}
+\item Input convolutional layer: 224x224 input tensor with 32 filter of 5x5x3 and outputs a 112x112x32 tensor after ReLu and max pooling.
+\item Second convolutional layer: 112x112 input tensor with 64 filter of 5x5x32 and outputs a 56x156x64 tensor after ReLu and max pooling.
+\item Third convolutional layer: 56x56 input tensor with 128 filter of 5x5x64 and outputs a 28x28x128 tensor after ReLu and max pooling.
+\item Fourth convolutional layer: 28x28 input tensor with 256 filter of 5x5x128 and outputs a 14x14x256 tensor after ReLu and max pooling.
+\item Fifth convolutional layer: 14x14 input tensor with 256 filter of 5x5x256 and outputs a 7x7x256 tensor after ReLu and max pooling.
+\\ \\ Fully Connected layers:
+\item First fully connected layer: 2048 nodes
+\item Second fully connected layer: 256 nodes
+\item Third fully connected layer: 64 nodes
+\item Fourth fully connected layer: 193 nodes
+\end{itemize}
+The output of the fourth fully connected layer is fed into the Softmax classifier. 
+% \begin{figure}[!ht]
+%         \centering
+        
+%         \includegraphics[width=11cm, height=7cm]{p2.png}
+%         \caption{The Net Architecture}
+%     \end{figure}
+
+\subsection{Training method}
+Factors to be considered while training of the model include:
+\begin{itemize}
+    \item Choice of optimizer: Adam Optimizer
+    \item Choice of loss function: Cross-Entropy Loss
+    \item Batch size: 100
+    \item Number of epochs: 5
+    \item Initialization of weights/ choice of checkpoint: Random initialization
+    \item Learning Rate: 1e-4
+\end{itemize}
+The back propagation algorithm is used to compute the gradient with respect to the parameters of the model in order to achieve gradient based optimization, we have used an Adam optimizer.
+\\ \\
+Adam, an algorithm for first-order gradient-based optimization of stochastic objective functions, based on adaptive estimates of lower-order moments.
+\\ \\
+The Softmax classifier is used to finally predict the class label of the input images. It gives the probability of each class as the output. The target class has the highest probability. All the probabilities lie between 0-1 and the summation of probabilities of all the classes is equal to 1.
+\\ \\
+Cross Entropy is used to calculate the loss while training. Cross-entropy loss, or log loss, measures the performance of a classification model whose output is a probability value between 0 and 1. Cross-entropy loss increases as the predicted probability diverges from the actual label.
+
+
+\newpage
+\section{Implementation}
+\subsection{Work Done}
+The project is developed using TensorFlow, which is a deep learning software library developed by Google. It is used for high performance numerical computation. The main advantage of using TensorFlow is its flexible architecture which allows easy deployment of computation across various platforms. 
+\\ \\
+Firstly we re-organized the data so that each folder contains images of the class identified by its by folder name.Then we create a  file named label.txt which contains the list of all such folders. 
+\\ \\
+After that we read the list of folders from label.txt and extracts features like height, width, color space, channels, format, filename, class label along with the image itself and creates a file of the format '.tfrecord', which is simple record-oriented binary format commonly used in Tensorflow application. It also splits the dataset into two sets i.e training and testing. The data is shuffled so that there is a random distribution amongst the two sets.
+\\ \\
+The CNN is trained for 5 epochs. It is then used to classify the testing images. The results of the classification are then stored in a CSV file. The CSV file contains the predicted label and the image name.
+\\ \\
+For the retrieval system we use the CSV file as reference. When a user enters a particular class number then a list of all the images with the same class in the CSV file is retrieved.
+\\ \\
+For feedback we ask the user to enter the image name and the relevant class number. After receiving the feedback, we retrain the model by freezing the convolutional layers and only updating the weights of the fully connected layers.  
+
+
+
+
+\subsection{Results and Analysis}
+Number of epochs : 3 \newline
+Number of classes : 58 \newline
+Batch Size : 120 \newline
+Accuracy of the model : 40\%
+\newline
+\newline
+The metrics for evaluation include :\newline
+k-precision \newline
+k-recall
+\newline
+Since there is a unique occurence of query in the test set, the numerator of k-recall and k-precision will always be 1 if it has correctly been idefntified by the model else it will be 0.Also, If the image does not exist in the dataset, the value will be infinity.
+\newline
+\newline
+For k=5,10, 20 and 40
+\newline
+Query Entered :  740028.png \newline
+k-precision for k=5  : 0.2 \newline
+k-recall for k=5  : 0.33 \newline
+k-precision for k=10  : 0.1 \newline
+k-recall for k=10  : 0.2 \newline
+k-precision for k=20  : 0.05 \newline
+k-recall for k=20  : 0.09 \newline
+k-precision for k=40  : 0.025 \newline
+k-recall for k=40  : 0.04 \newline \newline
+Due to the low accuracy of the model, the performance metrics k-precision and k-recall are not giving satisfactory values.Also, since there is an unique occurence of the image in the dataset the numberator for the information retrieval metrics is always going to be 1 or 0.The denominator will increase as we increase the value of k. The accuracy of the CNN model can be improved by training it for more number of epochs. Since there is an unbalanced distribution of data among the classes, we have chosen the top 58 classes and have eliminated the classes with lower number of images to train the dataset.
+\newline \newline 
+Figure 1 shows the CSV file obtained for the testing images.
+
+
+
+\begin{figure}[!ht]
+        \centering
+        
+        \includegraphics[width=9cm, height=5cm]{result.jpeg}
+        \caption{Result and Analysis}
+    \end{figure}
+    
+% \begin{figure}[!ht]
+%         \centering
+        
+%         \includegraphics[width=9cm, height=5cm]{1_pred.png}
+%         \caption{The Predicted Mask}
+%     \end{figure}
+\subsection{Innovative Work}
+The technique mentioned in the paper that considered the relevance feedback is via regular updation of the weights of the decision tree, that is giving more weights to the relevant features whereas ess weights to the non-relevant features. Our project uses Deep Learning CNN to decode the images and employs the relevance feedback by back propagating the error calculated during testing as per the feedback of the user. The back propagation updates the weight of the fully connected layers only, that is the initial layers of the model are freezed and not affected by the feedback. The results have been verified via printing the logit values before and after the feedback from user. 
+
+\vspace{1em}
+\subsection{Details of each individual's work w.r.t. project tasks.}
+Manali Shah: Data preprocessing and training the model using CNN \newline
+Shivani Shrivastava: Relevance feedback mechanism by freezing all layers except fully connected layers during back propagation \newline
+Ria Kulshrestha: Relevance feedback mechanism by freezing all layers except fully connected layers during back propagation
+\newline
+Sneha Patil: Data preprocessing and training the model using CNN
+
+
+
+
+\newpage
+\section{Conclusion and Future Work}
+In this project, we carried out the retrieval and relevance feedback of the user by employing the Deepl Learning CNN architecture. The relevance feebdback was achieved by freezing the initial layers of the architecture and training only the fully connected layers after considering the feedback from the user.The obtained model was then tested for the batch of 120 test images. The accuracy of the model after training it for 3 epochs on the COCO dataset is 40\%. The accuracy achieved is not satisfactory and can be imporved by further training the model for more number of epochs. The performance metrics were hence quite low due to the low accuracy of the CNN model and unique occurence of the query image in the test dataset.
+\newline 
+We intend to do the following in the future:
+\begin{itemize}
+    \item Train the model on a richer dataset.
+    \item Train the proposed on different kinds of medical images.
+    \item Eliminate the need of IRMA codes by using NLP.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+\newpage
+\begin{thebibliography}{1}
+\addcontentsline{toc}{section}{References}
+    
+
+%\bibitem{adi} https://dl.acm.org/citation.cfm?id=2903240
+%\bibitem{} Maria Tzelepi, Anastasios Tefas: Relevance Feedback in Deep Convolutional Neural Networks for Content Based Image Retrieval
+\bibitem{} http://www.imageclef.org/2009/medanno
+\bibitem{} https://www.sciencedirect.com/science/article/pii/S0925231208001355
+\bibitem{} Ojala T, Pietikainen M, Maenpaa T: Multiresolution gray-scale and rotation invariant texture classification with local binary patterns.
+IEEE Trans Pattern Anal Mach Intell 24:971–987, 2002
+\bibitem{} Latex Template for NITK, Adithya Bhat, Dept. of Information Technology, NITK,  https://github.com/adithyabhatkajake/latex-template-nitk
+\bibitem{cbir}MacArthur SD, Brodley CE, Shyu CR: Relevance feedback decision trees in content-based image retrieval. Proceedings of the IEEE Workshop on Content-Based Access of Image and Video Libraries: 68–73, 2000.
+\bibitem{xray-paper}Ko BC, Kim SH, Nam JY: X-ray image classification using random forests with local wavelet-based CS-local binary patterns. JDigit Imaging, 2011
+\bibitem{cnn-paper}Maria Tzelepi, Anastasios Tefas: Relevance Feedback in Deep Convolutional Neural Networks for Content Based Image Retrieval, 2016
+\bibitem{cbirk}Marius Muja, David G. Lowe:Fast Approximate Nearest Neighbors,2009
+WITH AUTOMATIC ALGORITHM CONFIGURATION
+\end{thebibliography}
+\end{document}
